@@ -4,9 +4,9 @@ class Config:
     exp_dir = f'{exp_name}_x{scale}'
 
     num_iters = 10000000
-    batch_size = 32
+    batch_size = 1
     lr_patch_size = 96
-    num_workers = 8
+    num_workers = 1
 
     n_resblocks = 32
     n_feats = 256

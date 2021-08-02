@@ -12,7 +12,7 @@ from torch.utils.tensorboard import SummaryWriter
 
 from config import Config as _config
 from model.edsr import EDSR
-from dataloader import DF2KLAB
+from dataloader import DF2K
 
 
 def train(config):
@@ -23,13 +23,13 @@ def train(config):
     shutil.copy('config.py', f'exps/{config.exp_dir}/config.py')
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    train_dataset = DF2KLAB(config)
+    train_dataset = DF2K(config)
     train_loader = DataLoader(dataset=train_dataset, batch_size=config.batch_size,
                               shuffle=True, num_workers=config.num_workers)
 
     from torchsummary import summary
     model = EDSR(config).to(device)
-    criterion = nn.CrossEntropyLoss().to(device)
+    criterion = nn.L1Loss().to(device)
     optimizer = optim.Adam(model.parameters(), lr=1e-4, betas=(0.9, 0.999), eps=1e-8)
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200], gamma=0.5)
 
