@@ -76,7 +76,7 @@ class DF2KLabelTrain(Dataset):
 class DF2KLabelValid(Dataset):
     def __init__(self, config):
         self.scale = config.scale
-        self.lr_patch_size = config.lr_patch_size
+        self.lr_patch_size = config.lr_patch_size * self.scale
         self.hr_patch_size = self.lr_patch_size * self.scale
         self.valid_path = sorted(glob(config.valid_imgs))
 
