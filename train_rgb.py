@@ -43,7 +43,7 @@ def train(config):
     optimizer = optim.Adam(model.parameters(), lr=1e-4, betas=(0.9, 0.999), eps=1e-8)
     scheduler = optim.lr_scheduler.MultiStepLR(optimizer, milestones=[200], gamma=0.5)
 
-    valid_err = np.inf
+    max_valid_err = np.inf
     num_batch = len(train_loader)
     num_epoch = int(np.ceil(config.num_iters / len(train_dataset)))
     for epoch in range(num_epoch):
@@ -78,6 +78,10 @@ def train(config):
         writer.add_scalar('valid/psnr', psnr / len(valid_loader), epoch)
         writer.add_scalar('valid/ssim', ssim / len(valid_loader), epoch)
         writer.flush()
+
+        if psnr < max_valid_err:
+            max_valid_err = psnr
+            torch.save(model.state_dict(), f'exps/{config.exp_dir}/ckpt/{psnr:.4f}.pth')
 
         scheduler.step()
         save_image((hr_imgs[0] + 1) / 2., f'exps/{config.exp_dir}/samples/{epoch}_hr.png')

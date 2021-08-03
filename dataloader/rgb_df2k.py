@@ -33,6 +33,9 @@ class DF2KRGBTrain(Dataset):
 
 class DF2KRGBValid(Dataset):
     def __init__(self, config):
+        self.scale = config.scale
+        self.lr_patch_size = config.lr_patch_size * self.scale
+        self.hr_patch_size = self.lr_patch_size * self.scale
         self.valid_path = sorted(glob(config.valid_imgs))
 
     def __len__(self):
@@ -41,8 +44,8 @@ class DF2KRGBValid(Dataset):
     def __getitem__(self, item):
         img_path = self.valid_path[item]
         hr_img = Image.open(img_path)
-        h, w = hr_img.size
-        lr_img = hr_img.resize((int(h / 2), int(w / 2)), Image.BICUBIC)
+        hr_img = transforms.RandomCrop(self.hr_patch_size)(hr_img)
+        lr_img = hr_img.resize((self.lr_patch_size, self.lr_patch_size), Image.BICUBIC)
         hr_img = (np.transpose(np.array(hr_img), (2, 0, 1)) / 255.) * 2 - 1
         lr_img = (np.transpose(np.array(lr_img), (2, 0, 1)) / 255.) * 2 - 1
         return torch.FloatTensor(lr_img), torch.FloatTensor(hr_img)
