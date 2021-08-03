@@ -25,13 +25,6 @@ class EDSR(nn.Module):
         kernel_size = 3
         scale = config.scale
         act = nn.ReLU(True)
-        url_name = 'r{}f{}x{}'.format(n_resblocks, n_feats, scale)
-        if url_name in url:
-            self.url = url[url_name]
-        else:
-            self.url = None
-        self.sub_mean = common.MeanShift(config.rgb_range)
-        self.add_mean = common.MeanShift(config.rgb_range, sign=1)
 
         # define head module
         m_head = [conv(config.n_colors, n_feats, kernel_size)]
@@ -55,15 +48,10 @@ class EDSR(nn.Module):
         self.tail = nn.Sequential(*m_tail)
 
     def forward(self, x):
-        x = self.sub_mean(x)
         x = self.head(x)
-
         res = self.body(x)
         res += x
-
-        x = self.tail(res)
-        x = self.add_mean(x)
-
+        x = nn.Tanh()(self.tail(res))
         return x
 
     def load_state_dict(self, state_dict, strict=True):

@@ -3,6 +3,9 @@ class Config:
     exp_name = 'degug'
     exp_dir = f'{exp_name}_x{scale}'
 
+    use_lab_mae = False
+    use_rgb_class = True
+
     num_iters = 10000000
     batch_size = 1
     lr_patch_size = 96
