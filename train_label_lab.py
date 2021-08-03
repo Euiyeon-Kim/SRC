@@ -73,7 +73,6 @@ def train(config):
             writer.add_scalar('train/total', loss.item(), (epoch * num_batch) + step)
             writer.flush()
             print(f'EPOCH {epoch} [{step}|{num_batch}]: {loss.item()}, MAE:{mae_loss.item()}, CE:{classification_loss.item()}')
-            break
 
         model.eval()
         psnr = 0

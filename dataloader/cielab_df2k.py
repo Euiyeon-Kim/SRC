@@ -51,14 +51,10 @@ class DF2KLabValid(Dataset):
         hr_rgb = Image.open(img_path)
         hr_rgb = transforms.RandomCrop(self.hr_patch_size)(hr_rgb)
         lr_img = hr_rgb.resize((self.lr_patch_size, self.lr_patch_size), Image.BICUBIC)
-        hr_lab = rgb2lab(hr_rgb)
-
         hr_rgb = np.transpose(np.array(hr_rgb), (2, 0, 1))
         lr_img = (np.transpose(np.array(lr_img), (2, 0, 1)) / 255.) * 2 - 1
-
         return torch.FloatTensor(np.array(lr_img)), \
-               torch.LongTensor(np.array(hr_rgb)),\
-               torch.FloatTensor(np.array(hr_lab)),
+               torch.FloatTensor(np.array(hr_rgb))
 
 
 if __name__ == '__main__':
