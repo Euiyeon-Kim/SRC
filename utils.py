@@ -10,11 +10,13 @@ RGB_FROM_XYZ = linalg.inv(XYZ_FROM_RGB)
 
 
 def tv_lab2xyz(l_tensor, a_tensor, b_tensor, device):
+    l_tensor = l_tensor.permute(0, 2, 3, 1) / torch.FloatTensor([255.]).to(device)
+    a_tensor = a_tensor.permute(0, 2, 3, 1) / torch.FloatTensor([255.]).to(device)
+    b_tensor = b_tensor.permute(0, 2, 3, 1) / torch.FloatTensor([255.]).to(device)
     y_tensor = (l_tensor + torch.FloatTensor([16.]).to(device)) / torch.FloatTensor([116.]).to(device)
     x_tensor = (a_tensor / torch.FloatTensor([500.]).to(device)) + y_tensor
     z_tensor = torch.clamp(y_tensor - (b_tensor / torch.FloatTensor([200.]).to(device)), min=0.0)
-    concat_xyz_tensor = torch.stack((x_tensor, y_tensor, z_tensor), dim=-1)
-
+    concat_xyz_tensor = torch.cat((x_tensor, y_tensor, z_tensor), dim=-1)
     xyz_mask = (concat_xyz_tensor > torch.FloatTensor([0.2068966]).to(device)).bool()
     xyz_t = torch.mul(torch.pow(concat_xyz_tensor, 3), xyz_mask)
     xyz_f = torch.mul((concat_xyz_tensor - torch.FloatTensor([16.0]).to(device) / torch.FloatTensor([116.]).to(device))
