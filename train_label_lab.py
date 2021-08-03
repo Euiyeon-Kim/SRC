@@ -39,7 +39,7 @@ def train(config):
     train_loader = DataLoader(dataset=train_dataset, batch_size=config.batch_size,
                               shuffle=True, num_workers=config.num_workers)
     valid_dataset = DF2KLabValid(config)
-    valid_loader = DataLoader(dataset=valid_dataset, batch_size=2, shuffle=False)
+    valid_loader = DataLoader(dataset=valid_dataset, batch_size=1, shuffle=False)
 
     model = LabelLabEDSR(config).to(device)
     criterion = nn.CrossEntropyLoss().to(device)
@@ -74,6 +74,15 @@ def train(config):
             writer.flush()
             print(f'EPOCH {epoch} [{step}|{num_batch}]: {loss.item()}, MAE:{mae_loss.item()}, CE:{classification_loss.item()}')
 
+        scheduler.step()
+        viz_pred = sr_img[0]
+        viz_lab = sr_labs[0].cpu().numpy()
+        viz_rgb = lab2rgb(viz_lab)
+        save_image((hr_labels[0]) / 255., f'exps/{config.exp_dir}/samples/{epoch}_hr.png')
+        save_image((lr_imgs[0] + 1) / 2., f'exps/{config.exp_dir}/samples/{epoch}_lr.png')
+        save_image(viz_pred / 255., f'exps/{config.exp_dir}/samples/{epoch}_sr.png')
+        cv2.imwrite(f'exps/{config.exp_dir}/samples/{epoch}_recon.png', cv2.cvtColor(viz_rgb, cv2.COLOR_RGB2BGR)*255.)
+
         model.eval()
         psnr = 0
         ssim = 0
@@ -94,15 +103,6 @@ def train(config):
         if max_valid_psnr < psnr:
             max_valid_psnr = psnr
             torch.save(model.state_dict(), f'exps/{config.exp_dir}/ckpt/{psnr:.4f}.pth')
-
-        scheduler.step()
-        viz_pred = sr_img[0]
-        viz_lab = sr_labs[0].cpu().numpy()
-        viz_rgb = lab2rgb(viz_lab)
-        save_image((hr_labels[0]) / 255., f'exps/{config.exp_dir}/samples/{epoch}_hr.png')
-        save_image((lr_imgs[0] + 1) / 2., f'exps/{config.exp_dir}/samples/{epoch}_lr.png')
-        save_image(viz_pred / 255., f'exps/{config.exp_dir}/samples/{epoch}_sr.png')
-        cv2.imwrite(f'exps/{config.exp_dir}/samples/{epoch}_recon.png', cv2.cvtColor(viz_rgb, cv2.COLOR_RGB2BGR)*255.)
 
 
 if __name__ == '__main__':

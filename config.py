@@ -7,7 +7,7 @@ class Config:
     use_rgb_class = True
 
     num_iters = 10000000
-    batch_size = 2
+    batch_size = 16
     lr_patch_size = 96
     num_workers = 1
 
