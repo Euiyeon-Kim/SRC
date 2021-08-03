@@ -45,7 +45,6 @@ def train(config):
 
             optimizer.zero_grad()
             l_tensor, a_tensor, b_tensor, sr_lab = model(lr_lab)
-
             loss = criterion(sr_lab, hr_lab)
             loss.backward()
             optimizer.step()
